@@ -1,0 +1,273 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  labels:
+    provider: fabric8
+    project: camel-springboot-rest
+    version: 1.0.0-SNAPSHOT
+    group: com.garethahealy.fis2-ocp-monitoring
+  name: camel-springboot-rest
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      fabric8.io/git-commit: 05b3b17d161b6e917aed62371204abdfa008b550
+      fabric8.io/git-branch: master
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9779"
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: health
+  spec:
+    ports:
+    - port: 8081
+      protocol: TCP
+      targetPort: 8081
+    selector:
+      project: camel-springboot-rest
+      provider: fabric8
+      group: com.garethahealy.fis2-ocp-monitoring
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      fabric8.io/git-commit: 05b3b17d161b6e917aed62371204abdfa008b550
+      fabric8.io/git-branch: master
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9779"
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: rest
+  spec:
+    ports:
+    - port: 8082
+      protocol: TCP
+      targetPort: 8082
+    selector:
+      project: camel-springboot-rest
+      provider: fabric8
+      group: com.garethahealy.fis2-ocp-monitoring
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: ${APP}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: ${APP}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APP}:${IS_TAG}
+    source:
+      git:
+        uri: ${GIT}
+      type: Git
+    strategy:
+      sourceStrategy:
+        env:
+        - name: MAVEN_ARGS_APPEND
+          value: -Dmaven.source.skip=true -Dlicense.skipDownloadLicenses
+        from:
+          kind: ImageStreamTag
+          name: fis-java-openshift:2.0
+        incremental: true
+      type: Source
+    triggers:
+    - type: ConfigChange
+    - imageChange:
+        from:
+          kind: ImageStreamTag
+          name: fis-java-openshift:2.0
+      type: ImageChange
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: ${APP}-hawkular-agent
+  data:
+    hawkular-openshift-agent: |
+      collection_interval_secs: 45
+      endpoints:
+      - type: prometheus
+        protocol: "http"
+        port: 9779
+        path: /metrics
+        metrics:
+        - name: org_apache_camel_MyCamel_ExchangesTotal
+          id: prometheus_MyCamel_ExchangesTotal
+          type: gauge
+        - name: org_apache_camel_MyCamel_MeanProcessingTime
+          id: prometheus_MyCamel_MeanProcessingTime
+          type: gauge
+      - type: "jolokia"
+        protocol: https
+        port: 8778
+        path: /jolokia/
+        credentials:
+          username: jolokia
+          password: supersecretpassword
+        collection_interval_secs: 60
+        metrics:
+        - name: java.lang:type=Threading#ThreadCount
+          type: counter
+          id:   jolokia_MyCamel_VMThreadCount
+        - name: java.lang:type=Memory#HeapMemoryUsage#used
+          type: gauge
+          id:   jolokia_MyCamel_VMHeapMemoryUsed
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: prometheus-config
+  data:
+    config.yaml: |
+      ---
+      lowercaseOutputName: false
+      lowercaseOutputLabelNames: false
+      whitelistObjectNames: ["org.apache.camel:*"]
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      provider: fabric8
+      project: camel-springboot-rest
+      version: 1.0.0-SNAPSHOT
+      group: com.garethahealy.fis2-ocp-monitoring
+    name: ${APP}
+  spec:
+    replicas: 1
+    strategy:
+      rollingParams:
+        timeoutSeconds: 10800
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          hawkular-openshift-agent: camel-springboot-rest-hawkular-agent
+        labels:
+          provider: fabric8
+          project: camel-springboot-rest
+          version: 1.0.0-SNAPSHOT
+          group: com.garethahealy.fis2-ocp-monitoring
+      spec:
+        containers:
+        - env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CONTAINER_CORE_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                resource: limits.cpu
+          - name: CONTAINER_MAX_MEMORY
+            valueFrom:
+              resourceFieldRef:
+                resource: limits.memory
+          - name: JAVA_APP_DIR
+            value: /deployments
+          - name: JAVA_OPTIONS
+            value: -javaagent:/tmp/artifacts/m2/io/prometheus/jmx/jmx_prometheus_javaagent/0.7/jmx_prometheus_javaagent-0.7.jar=9779:/var/run/configmap/prometheus-config/config.yaml
+          image: ${APP}:latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: ${APP}
+          ports:
+          - containerPort: 8082
+            name: rest
+            protocol: TCP
+          - containerPort: 8081
+            name: health
+            protocol: TCP
+          - containerPort: 8080
+            name: web
+            protocol: TCP
+          - containerPort: 9779
+            name: prometheus
+            protocol: TCP
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 1024Mi
+              cpu: 500m
+            requests:
+              memory: 512Mi
+              cpu: 100m
+          securityContext:
+            privileged: false
+          volumeMounts:
+          - mountPath: /var/run/secrets/jolokia-pw
+            name: jolokia-pw
+          - mountPath: /var/run/configmap/prometheus-config
+            name: prometheus-config
+        volumes:
+        - name: jolokia-pw
+          secret:
+            secretName: jolokia-pw
+        - configMap:
+            name: prometheus-config
+          name: prometheus-config
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APP}
+        from:
+          kind: ImageStreamTag
+          name: ${APP}:latest
+      type: ImageChange
+parameters:
+- name: IS_TAG
+  value: latest
+- name: APP
+  value: camel-springboot-rest
+- name: GIT
+  value: https://github.com/garethahealy/fis2-ocp-monitoring.git

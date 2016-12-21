@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ${APP}-hawkular-agent
+data:
+  hawkular-openshift-agent: |
+    collection_interval_secs: 45
+    endpoints:
+    - type: prometheus
+      protocol: "http"
+      port: 9779
+      path: /metrics
+      metrics:
+      - name: org_apache_camel_MyCamel_ExchangesTotal
+        id: prometheus_MyCamel_ExchangesTotal
+        type: gauge
+      - name: org_apache_camel_MyCamel_MeanProcessingTime
+        id: prometheus_MyCamel_MeanProcessingTime
+        type: gauge
+    - type: "jolokia"
+      protocol: https
+      port: 8778
+      path: /jolokia/
+      credentials:
+        username: jolokia
+        password: supersecretpassword
+      collection_interval_secs: 60
+      metrics:
+      - name: java.lang:type=Threading#ThreadCount
+        type: counter
+        id:   jolokia_MyCamel_VMThreadCount
+      - name: java.lang:type=Memory#HeapMemoryUsage#used
+        type: gauge
+        id:   jolokia_MyCamel_VMHeapMemoryUsed

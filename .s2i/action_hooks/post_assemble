@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo " -----> Post Assemble"
+
+# Global S2I variable setup
+source /tmp/src/.s2i/bin/s2i-setup
+
+echo "Redirecting /opt/jolokia/etc/jolokia.pw to secret"
+ln -s /var/run/secrets/jolokia-pw/jolokia-pw-secret /opt/jolokia/etc/jolokia.pw
+
+echo "Downloading jmx_prometheus_javaagent"
+mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.0:get \
+    -DgroupId=io.prometheus.jmx -DartifactId=jmx_prometheus_javaagent -Dversion=0.7 \
+    -Dmaven.repo.local=/tmp/artifacts/m2 -s /tmp/src/configuration/settings.xml

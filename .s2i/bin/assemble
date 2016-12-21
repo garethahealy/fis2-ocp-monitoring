@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Global S2I variable setup
+source /tmp/src/.s2i/bin/s2i-setup
+
+if [ -f $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble ]; then
+    if [ ! -x $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble ]; then
+        echo "WARNING: Script $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble not executable. Updating"
+        chmod +x $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble
+    fi
+fi
+
+if [ -f $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble ]; then
+    if [ ! -x $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble ]; then
+        echo "WARNING: Script $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble not executable. Updating"
+        chmod +x $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble
+    fi
+fi
+
+# 1. Run PrePhase
+if [ -x $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble ]; then
+    echo " -----> Running $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble"
+    $S2I_SOURCE_DIR/.s2i/action_hooks/pre_assemble
+fi
+
+# 2. Run MainPhase
+echo " -----> Running base Assemble $BASE_S2I_SCRIPTS_PATH/assemble"
+$BASE_S2I_SCRIPTS_PATH/assemble
+
+# 3. Run PostPhase
+if [ -x $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble ]; then
+    echo " -----> Running $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble"
+    $S2I_SOURCE_DIR/.s2i/action_hooks/post_assemble
+fi

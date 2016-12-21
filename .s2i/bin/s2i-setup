@@ -1,0 +1,3 @@
+BASE_S2I_SCRIPTS_PATH=/usr/local/s2i
+
+source $BASE_S2I_SCRIPTS_PATH/s2i-setup

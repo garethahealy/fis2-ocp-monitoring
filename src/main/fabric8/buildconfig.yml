@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: ${APP}
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ${APP}:${IS_TAG}
+  source:
+    git:
+      uri: ${GIT}
+    type: Git
+  strategy:
+    sourceStrategy:
+      env:
+      - name: "MAVEN_ARGS_APPEND"
+        value: "-Dmaven.source.skip=true -Dlicense.skipDownloadLicenses"
+      from:
+        kind: ImageStreamTag
+        name: fis-java-openshift:2.0
+      incremental: true
+    type: Source
+  triggers:
+  - imageChange:
+      from:
+        kind: ImageStreamTag
+        name: fis-java-openshift:2.0
+    type: ImageChange

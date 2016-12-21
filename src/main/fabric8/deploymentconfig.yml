@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: ${APP}
+spec:
+  replicas: 1
+  strategy:
+    rollingParams:
+      timeoutSeconds: 10800
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        hawkular-openshift-agent: camel-springboot-rest-hawkular-agent
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONTAINER_CORE_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: CONTAINER_MAX_MEMORY
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        - name: JAVA_APP_DIR
+          value: /deployments
+        - name: JAVA_OPTIONS
+          value: "-javaagent:/tmp/artifacts/m2/io/prometheus/jmx/jmx_prometheus_javaagent/0.7/jmx_prometheus_javaagent-0.7.jar=9779:/var/run/configmap/prometheus-config/config.yaml"
+        image: ${APP}:latest
+        imagePullPolicy: IfNotPresent
+        name: ${APP}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 60
+          timeoutSeconds: 1
+          failureThreshold: 1
+          periodSeconds: 10
+          successThreshold: 1
+        ports:
+        - containerPort: 8082
+          name: rest
+          protocol: TCP
+        - containerPort: 8081
+          name: health
+          protocol: TCP
+        - containerPort: 8080
+          name: web
+          protocol: TCP
+        - containerPort: 9779
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        resources:
+          limits:
+            memory: 1024Mi
+            cpu: 500m
+          requests:
+            memory: 512Mi
+            cpu: 100m
+        volumeMounts:
+        - mountPath: /var/run/secrets/jolokia-pw
+          name: jolokia-pw
+        - mountPath: /var/run/configmap/prometheus-config
+          name: prometheus-config
+      volumes:
+      - name: jolokia-pw
+        secret:
+          secretName: jolokia-pw
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - ${APP}
+      from:
+        kind: ImageStreamTag
+        name: ${APP}:latest
+    type: ImageChange

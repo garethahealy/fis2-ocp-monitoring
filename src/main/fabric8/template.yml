@@ -1,0 +1,12 @@
+---
+apiVersion: "v1"
+kind: "Template"
+metadata:
+  name: "camel-springboot-rest"
+parameters:
+- name: "IS_TAG"
+  value: "latest"
+- name: "APP"
+  value: "camel-springboot-rest"
+- name: "GIT"
+  value: "https://github.com/garethahealy/fis2-ocp-monitoring.git"

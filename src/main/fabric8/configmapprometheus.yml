@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  config.yaml: |
+    ---
+    lowercaseOutputName: false
+    lowercaseOutputLabelNames: false
+    whitelistObjectNames: ["org.apache.camel:*"]

@@ -1,0 +1,21 @@
+# IntelliJ IDEA #
+.idea/
+*.iml
+
+# Eclipse Files #
+.metadata
+.settings
+.project
+.classpath
+RemoteSystemsTempFiles
+
+# General Java Folders #
+target/
+
+# Java Package Files #
+*.jar
+*.class
+
+# General #
+tmp/
+*.tmp

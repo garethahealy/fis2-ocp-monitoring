@@ -2,6 +2,15 @@
 [![License](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)]()
 
 # fis2-ocp-monitoring
+**Supportability:**
+*If you are a RedHat customer; it is **suggested** you raise a support ticket to clarify the supportability of the below components.
+The below are the views of my own, and not representative of RedHat nor of any communities mentioned.*
+- FIS2.0 is, at time of writing (December 2016), tech preview and no formal support is provided.
+- Hawkular OpenShift Agent is only supported [upstream](http://www.hawkular.org/community/docs/getting-involved/)
+- Jolokia JMX falls under the FIS2.0 supportability.
+- Prometheus JMX scraper is only supported [upstream](https://github.com/prometheus/jmx_exporter/issues)
+- Hawkular Grafana DataSource is only supported [upstream](https://github.com/hawkular/hawkular-grafana-datasource/issues)
+
 ## Preface
 As part of [RedHat Consulting](https://www.redhat.com/en/about/contact/consulting) within the UK and Ireland region, I am typically involved with engagements based around [JBoss Fuse](https://www.redhat.com/en/technologies/jboss-middleware/fuse), 
 [JBoss AMQ](https://www.redhat.com/en/technologies/jboss-middleware/amq) and most recently, [OpenShift Container Platform.](https://www.redhat.com/en/technologies/cloud-computing/openshift)

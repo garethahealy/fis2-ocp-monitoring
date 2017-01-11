@@ -23,6 +23,7 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
+              divisor: 1m
         - name: CONTAINER_MAX_MEMORY
           valueFrom:
             resourceFieldRef:
@@ -80,6 +81,8 @@ spec:
           name: jolokia-pw
         - mountPath: /var/run/configmap/prometheus-config
           name: prometheus-config
+        - mountPath: /var/run/configmap/hawkular-agent
+          name: ${APP}-hawkular-agent
       volumes:
       - name: jolokia-pw
         secret:
@@ -87,6 +90,9 @@ spec:
       - name: prometheus-config
         configMap:
           name: prometheus-config
+      - name: ${APP}-hawkular-agent
+        configMap:
+          name: ${APP}-hawkular-agent
   triggers:
   - type: ConfigChange
   - imageChangeParams:

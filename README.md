@@ -3,7 +3,7 @@
 
 # fis2-ocp-monitoring
 **Supportability:**
-*If you are a RedHat customer; it is **suggested** you raise a support ticket to clarify the supportability of the below components.
+*If you are a RedHat customer; it is __suggested__ you raise a support ticket to clarify the supportability of the below components.
 The below are the views of my own, and not representative of RedHat nor of any communities mentioned.*
 - FIS2.0 is, at time of writing (December 2016), tech preview and no formal support is provided.
 - Hawkular OpenShift Agent is only supported [upstream](http://www.hawkular.org/community/docs/getting-involved/)
@@ -61,7 +61,7 @@ The below commands will create a new project, where we want to import the FIS2.0
 
     oc new-project fis2-monitoring-demo
     oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.0.redhat-000026/fis-image-streams.json
-    oc create -f https://raw.githubusercontent.com/garethahealy/fis2-ocp-monitoring/master/ocp-template/openshift.yml
+    oc create -f https://raw.githubusercontent.com/garethahealy/fis2-ocp-monitoring/master/ocp-template/fis2-ocp-monitoring.yml
     
 Once the ImageStream has been created, we want to import all tags, as we will be using the 2.0 tag as our base image:
 
@@ -123,12 +123,11 @@ The agent can be deployed as simply as:
     oc project openshift-infra
     oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:hawkular-agent
     oc create -f https://raw.githubusercontent.com/hawkular/hawkular-openshift-agent/master/deploy/openshift/hawkular-openshift-agent-configmap.yaml -n openshift-infra
-    oc process -f https://raw.githubusercontent.com/hawkular/hawkular-openshift-agent/master/deploy/openshift/hawkular-openshift-agent.yaml | oc create -n openshift-infra -f -
+    oc process -f https://raw.githubusercontent.com/hawkular/hawkular-openshift-agent/master/deploy/openshift/hawkular-openshift-agent.yaml IMAGE_VERSION=latest | oc create -n openshift-infra -f -
 
-We can now check its running:
+Finally, we want to verify that the Hawkular OpenShift Agent is collecting the metrics:
 
-    AGENT_POD=$(oc get pod | grep hawkular-openshift-agent | cut -d' ' -f1)
-    oc logs $AGENT_POD
+    oc logs -n openshift-infra $(oc get pod -n openshift-infra -oname -lmetrics-infra=agent)
     
 If the agent is collecting metrics correctly, you should see something along the lines of:
 

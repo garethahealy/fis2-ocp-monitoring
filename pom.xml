@@ -169,7 +169,7 @@
                                 <resource>
                                     <directory>${project.build.directory}/classes/META-INF/fabric8</directory>
                                     <includes>
-                                        <include>openshift.yml</include>
+                                        <include>fis2-ocp-monitoring.yml</include>
                                     </includes>
                                 </resource>
                             </resources>

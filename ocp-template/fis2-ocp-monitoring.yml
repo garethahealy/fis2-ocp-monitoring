@@ -247,6 +247,8 @@ objects:
             name: jolokia-pw
           - mountPath: /var/run/configmap/prometheus-config
             name: prometheus-config
+          - mountPath: /var/run/configmap/hawkular-agent
+            name: ${APP}-hawkular-agent
         volumes:
         - name: jolokia-pw
           secret:
@@ -254,6 +256,9 @@ objects:
         - configMap:
             name: prometheus-config
           name: prometheus-config
+        - configMap:
+            name: ${APP}-hawkular-agent
+          name: ${APP}-hawkular-agent
     triggers:
     - type: ConfigChange
     - imageChangeParams:

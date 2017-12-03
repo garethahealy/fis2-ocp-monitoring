@@ -64,7 +64,7 @@ The below commands will create a new project, where we want to import the FIS2.0
     
 Once the ImageStream has been created, we want to import all tags, as we will be using the 2.0 tag as our base image:
 
-    oc import-image fis-java-openshift --all
+    oc import-image fis-java-openshift --all=true --confirm=true
     
 FIS2.0 allows Jolokia access via BasicAuth, by default, a new password is randomly generated on each pod deployment. For our setup, we change this to a known password, firstly by storing the password as a secret:
 
@@ -120,7 +120,7 @@ Without the metrics sink, we have nowhere to store collected data.
 The agent can be deployed as simply as:
 
     oc project openshift-infra
-    oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:hawkular-agent
+    oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:hawkular-openshift-agent
     oc create -f https://raw.githubusercontent.com/hawkular/hawkular-openshift-agent/master/deploy/openshift/hawkular-openshift-agent-configmap.yaml -n openshift-infra
     oc process -f https://raw.githubusercontent.com/hawkular/hawkular-openshift-agent/master/deploy/openshift/hawkular-openshift-agent.yaml IMAGE_VERSION=latest | oc create -n openshift-infra -f -
 
@@ -149,3 +149,7 @@ And much like other steps in this blog, we need to check its running by:
     curl --insecure --silent http://$GRAFANA_URL/login 2>&1 | grep "Grafana"
 
 We can now open $GRAFANA_URL in Chrome, configure the datasource and view the collected metrics.
+
+ https://jolokia.org/reference/html/protocol.html#list
+
+curl -k -H "Authorization: Bearer $(oc whoami -t)" https://10.2.2.2:8443/api/v1/namespaces/fis2-monitoring-demo/pods/https:camel-springboot-rest-7-ubvle:8778/proxy/jolokia/list > log.json

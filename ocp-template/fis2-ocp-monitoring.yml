@@ -118,11 +118,9 @@ objects:
         path: /metrics
         metrics:
         - name: org_apache_camel_MyCamel_ExchangesTotal
-          id: prometheus_MyCamel_ExchangesTotal
-          type: gauge
+          id: prometheus_MyCamel_ExchangesTotal_${type}_${name}
         - name: org_apache_camel_MyCamel_MeanProcessingTime
-          id: prometheus_MyCamel_MeanProcessingTime
-          type: gauge
+          id: prometheus_MyCamel_MeanProcessingTime_${type}_${name}
       - type: "jolokia"
         protocol: https
         port: 8778
@@ -248,7 +246,7 @@ objects:
           - mountPath: /var/run/configmap/prometheus-config
             name: prometheus-config
           - mountPath: /var/run/configmap/hawkular-agent
-            name: ${APP}-hawkular-agent
+            name: hawkular-openshift-agent
         volumes:
         - name: jolokia-pw
           secret:
@@ -258,7 +256,7 @@ objects:
           name: prometheus-config
         - configMap:
             name: ${APP}-hawkular-agent
-          name: ${APP}-hawkular-agent
+          name: hawkular-openshift-agent
     triggers:
     - type: ConfigChange
     - imageChangeParams:

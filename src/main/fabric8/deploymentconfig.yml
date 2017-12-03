@@ -9,9 +9,6 @@ spec:
       timeoutSeconds: 10800
     type: Rolling
   template:
-    metadata:
-      annotations:
-        hawkular-openshift-agent: camel-springboot-rest-hawkular-agent
     spec:
       containers:
       - env:
@@ -31,7 +28,7 @@ spec:
         - name: JAVA_APP_DIR
           value: /deployments
         - name: JAVA_OPTIONS
-          value: "-javaagent:/tmp/artifacts/m2/io/prometheus/jmx/jmx_prometheus_javaagent/0.7/jmx_prometheus_javaagent-0.7.jar=9779:/var/run/configmap/prometheus-config/config.yaml"
+          value: "-javaagent:/tmp/artifacts/m2/io/prometheus/jmx/jmx_prometheus_javaagent/0.7/jmx_prometheus_javaagent-0.7.jar=9779:/run/configmaps/garethahealy.com/prometheus-config/config.yaml"
         image: ${APP}:latest
         imagePullPolicy: IfNotPresent
         name: ${APP}
@@ -77,11 +74,11 @@ spec:
             memory: 512Mi
             cpu: 100m
         volumeMounts:
-        - mountPath: /var/run/secrets/jolokia-pw
+        - mountPath: /run/secrets/garethahealy.com/secrets/jolokia-pw
           name: jolokia-pw
-        - mountPath: /var/run/configmap/prometheus-config
+        - mountPath: /run/configmaps/garethahealy.com/prometheus-config
           name: prometheus-config
-        - mountPath: /var/run/configmap/hawkular-agent
+        - mountPath: /run/configmaps/garethahealy.com/hawkular-agent
           name: ${APP}-hawkular-agent
       volumes:
       - name: jolokia-pw
@@ -90,7 +87,7 @@ spec:
       - name: prometheus-config
         configMap:
           name: prometheus-config
-      - name: ${APP}-hawkular-agent
+      - name: hawkular-openshift-agent
         configMap:
           name: ${APP}-hawkular-agent
   triggers:

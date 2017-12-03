@@ -6,7 +6,7 @@ echo " -----> Post Assemble"
 source /tmp/src/.s2i/bin/s2i-setup
 
 echo "Redirecting /opt/jolokia/etc/jolokia.pw to secret"
-ln -s /var/run/secrets/jolokia-pw/jolokia-pw-secret /opt/jolokia/etc/jolokia.pw
+ln -s /run/secrets/garethahealy.com/jolokia-pw/jolokia-pw-secret /opt/jolokia/etc/jolokia.pw
 
 echo "Downloading jmx_prometheus_javaagent"
 mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.0:get \

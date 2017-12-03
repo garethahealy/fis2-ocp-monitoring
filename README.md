@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/garethahealy/fis2-ocp-monitoring.svg?branch=master)](https://travis-ci.org/garethahealy/fis2-ocp-monitoring)
+[![Release Version](https://img.shields.io/maven-central/v/com.garethahealy.fis2-ocp-monitoring/camel-springboot-rest.svg?maxAge=2592000)](https://mvnrepository.com/artifact/com.garethahealy.fis2-ocp-monitoring/camel-springboot-rest)
 [![License](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)]()
 
 # fis2-ocp-monitoring

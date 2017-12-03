@@ -5,7 +5,7 @@
 **Supportability:**
 *If you are a RedHat customer; it is __suggested__ you raise a support ticket to clarify the supportability of the below components.
 The below are the views of my own, and not representative of RedHat nor of any communities mentioned.*
-- FIS2.0 is, at time of writing (December 2016), tech preview and no formal support is provided.
+- FIS2.0 support is provided with a JBoss Fuse [subscription](https://access.redhat.com/solutions/2923141).
 - Hawkular OpenShift Agent is only supported [upstream](http://www.hawkular.org/community/docs/getting-involved/)
 - Jolokia JMX falls under the FIS2.0 supportability.
 - Prometheus JMX scraper is only supported [upstream](https://github.com/prometheus/jmx_exporter/issues)
@@ -23,8 +23,6 @@ This blog post aims to answer that question by putting the jigsaw puzzle togethe
     - [Jolokia JMX](https://jolokia.org) 
     - [Prometheus JMX](https://github.com/prometheus/jmx_exporter)
 - Visualized by [Hawkular Grafana Datasource](https://github.com/hawkular/hawkular-grafana-datasource)
-
-**NOTE: at time of writing; FIS2.0 is currently in tech-preview.*
 
 The following information expects that the reader has a good understanding of OCP 3.3 and has access to a cluster with metrics already deployed.
 
@@ -140,7 +138,7 @@ If the agent is collecting metrics correctly, you should see something along the
 The final piece to the puzzle is the ability to view the metrics. Thankfully, Hawkular provides a Grafana integration which can be deployed by:
 
     oc new-project grafana
-    oc process -f https://raw.githubusercontent.com/hawkular/hawkular-grafana-datasource/master/docker/openshift/openshift-template-ephemeral.yaml | oc create -n grafana -f -
+    oc process -f https://raw.githubusercontent.com/hawkular/hawkular-grafana-datasource/master/openshift/openshift-template-ephemeral.yaml | oc create -n grafana -f -
 
 *NOTE: There is also a *persistent.yml template that can be used*
 

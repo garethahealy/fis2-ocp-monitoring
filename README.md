@@ -150,6 +150,11 @@ And much like other steps in this blog, we need to check its running by:
 
 We can now open $GRAFANA_URL in Chrome, configure the datasource and view the collected metrics.
 
- https://jolokia.org/reference/html/protocol.html#list
+#### What metrics does 'camel-springboot-rest' expose?
+Jolokia can provide a list of methods and variables via:
 
-curl -k -H "Authorization: Bearer $(oc whoami -t)" https://10.2.2.2:8443/api/v1/namespaces/fis2-monitoring-demo/pods/https:camel-springboot-rest-7-ubvle:8778/proxy/jolokia/list > log.json
+    https://jolokia.org/reference/html/protocol.html#list
+
+Thus, we can see what metrics can be exposed via:
+
+    curl --insecure -H "Authorization: Bearer $(oc whoami -t)" https://$(oc whoami --show-server)/api/v1/namespaces/fis2-monitoring-demo/pods/https:$(oc get pod -l project=camel-springboot-rest -o name):8778/proxy/jolokia/list 
